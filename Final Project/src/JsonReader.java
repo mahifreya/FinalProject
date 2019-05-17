@@ -11,13 +11,14 @@ import org.apache.http.util.EntityUtils;
 
 public class JsonReader
 {
-    public static void main(String[] args)
+    private String json = "";
+    public JsonReader(String url)
     {
         HttpClient httpclient = HttpClients.createDefault();
 
         try
         {
-            URIBuilder builder = new URIBuilder("https://api.wmata.com/Rail.svc/json/jLines");
+            URIBuilder builder = new URIBuilder(url);
 
 
             URI uri = builder.build();
@@ -34,12 +35,17 @@ public class JsonReader
 
             if (entity != null)
             {
-                System.out.println(EntityUtils.toString(entity));
+               json =  EntityUtils.toString(entity);
             }
         }
         catch (Exception e)
         {
             System.out.println(e.getMessage());
         }
+    }
+
+    public String getJSON()
+    {
+        return json;
     }
 }

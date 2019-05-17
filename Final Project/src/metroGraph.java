@@ -20,40 +20,7 @@ public class metroGraph //extends JPanel
 
     public void init() //initializes the graph
     {
-        try{
-            Scanner console = new Scanner(new File("redline.txt"));
-            String js = "";
-            while(console.hasNextLine());
-                js+= console.nextLine();
-            JSONObject obj = new JSONObject(js);
-            JSONArray stations = obj.getJSONArray("Stations");
-            for(int i = 0; i < stations.length(); i++)
-            {
-                JSONObject item = stations.getJSONObject(i);
-                ArrayList<String> color = new ArrayList<>();
-                color.add("red");
-                vertices.add(new Station(item.getString("Name"),color , null));
-            }
-          /*  for(int i = 0; i < vertices.size(); i++)
-            {
-                if(i == 0) {
-                    vertices.get(i).setPrevious(null);
-                    vertices.get(i).setNext(vertices.get(i + 1));
-                }
-                else if(i == vertices.size() - 1)
-                {
-                    vertices.get(i).setPrevious(vertices.get(i - 1));
-                    vertices.get(i).setNext(null);
-                }
-                else {
-                    vertices.get(i).setPrevious(vertices.get(i - 1));
-                    vertices.get(i).setNext(vertices.get(i + 1));
-                }
-            }
-*/
-        }
-        catch (FileNotFoundException e) {
-            System.exit(0);
-        }
+        JsonReader read = new JsonReader("https://api.wmata.com/Rail.svc/json/jLines");
+        JSONObject obj = new JSONObject(read.getJSON());
     }
 }
