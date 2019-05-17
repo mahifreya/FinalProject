@@ -30,9 +30,11 @@ public class metroGraph //extends JPanel
             for(int i = 0; i < stations.length(); i++)
             {
                 JSONObject item = stations.getJSONObject(i);
-                vertices.add(new Station(item.getString("Name"), "Red", null, null));
+                ArrayList<String> color = new ArrayList<>();
+                color.add("red");
+                vertices.add(new Station(item.getString("Name"),color , null));
             }
-            for(int i = 0; i < vertices.size(); i++)
+          /*  for(int i = 0; i < vertices.size(); i++)
             {
                 if(i == 0) {
                     vertices.get(i).setPrevious(null);
@@ -48,7 +50,7 @@ public class metroGraph //extends JPanel
                     vertices.get(i).setNext(vertices.get(i + 1));
                 }
             }
-
+*/
         }
         catch (FileNotFoundException e) {
             System.exit(0);
