@@ -11,6 +11,7 @@ public class metroGraph extends JPanel
     private String start;
     private String end;
     private final String[] colors = {"RD","YL", "GR", "BL", "OR", "SV"};
+    private final int speed = 33;
 
     public metroGraph(String start, String end)
     {
@@ -39,7 +40,7 @@ public class metroGraph extends JPanel
                 {
                     ArrayList<String> lines = new ArrayList<>();
                     lines.add(item.getString("LineCode1"));
-                    vertices.add(new Station(name, lines, null));
+                    vertices.add(new Station(item.getString("Code"), name, lines, null));
                 }
             }
             for(int h = 0; h < vertices.size(); h++)
@@ -115,20 +116,20 @@ public class metroGraph extends JPanel
                     for (Station neighbor : neighbors) {
                         if (!visited.contains(neighbor) ){
 
-                            // calculate predicted distance to the end node
-                            double predictedDistance = neighbor.getLocation().distance(endNode.getLocation());
+                            // calculate predicted time to the end node
+                            double predictedTime = predictTime(neighbor, endNode);
 
-                            // 1. calculate distance to neighbor. 2. calculate dist from start node
-                            double neighborDistance = current.calculateTime(neighbor);
-                            double totalDistance = current.getTimeToStart() + neighborDistance + predictedDistance;
+                            // 1. calculate time to neighbor. 2. calculate time from start node
+                            double neighborTime = current.getNeighbors().get(neighbor);
+                            double totalTime = current.getTimeToStart() + neighborTime + predictedTime;
 
-                            // check if distance smaller
-                            if(totalDistance < distances.get(neighbor) ){
-                                // update n's distance
-                                distances.put(neighbor, totalDistance);
+                            // check if time smaller
+                            if(totalTime < distances.get(neighbor) ){
+                                // update n's time
+                                distances.put(neighbor, totalTime);
                                 // used for PriorityQueue
-                                neighbor.setTimeToStart(totalDistance);
-                                neighbor.setPredictedDistance(predictedDistance);
+                                neighbor.setTimeToStart(totalTime);
+                                neighbor.setPredictedTime(predictedTime);
                                 // set parent
                                 parentMap.put(neighbor, current);
                                 // enqueue
@@ -163,5 +164,14 @@ public class metroGraph extends JPanel
         }
         path.addFirst(start.getName());
         return path;
+    }
+
+    private double predictTime(Station start, Station end)
+    {
+        JsonReader distance = new JsonReader("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo[?" + start.getStationCode() + "][&" + end.getStationCode()+ "]");
+        JSONObject obj = new JSONObject(distance.getJSON());
+        JSONObject item = obj.getJSONObject("StationToStationInfos");
+        double miles = Double.parseDouble(item.getString("CompositeMiles"));
+        return miles / speed * 60;
     }
 }
