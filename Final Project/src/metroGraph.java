@@ -5,7 +5,7 @@ import java.util.*;
 import org.json.*;
 
 
-public class metroGraph //extends JPanel
+public class metroGraph extends JPanel
 {
     private List<Station> vertices = new ArrayList<Station>();
     private String start;
@@ -39,10 +39,25 @@ public class metroGraph //extends JPanel
                 {
                     ArrayList<String> lines = new ArrayList<>();
                     lines.add(item.getString("LineCode1"));
-                    ArrayList<Station> neighbors = new ArrayList<>();
-                    vertices.add(new Station(name, lines, neighbors));
+                    vertices.add(new Station(name, lines, null));
                 }
             }
+            for(int h = 0; h < vertices.size(); h++)
+            {
+                if(i == 0) {
+                    vertices.get(i).addNeighbor(vertices.get(i+1), 0);
+                }
+                else if(i == vertices.size() - 1)
+                {
+                    vertices.get(i).addNeighbor(vertices.get(i-1), 0);
+                    vertices.get(i).addNeighbor(vertices.get(i+1), 0);
+                }
+                else
+                {
+                    vertices.get(i).addNeighbor(vertices.get(i-1), 0);
+                }
+            }
+
 
         }
              //JsonReader read = new JsonReader("https://api.wmata.com/Rail.svc/json/jLines");
@@ -68,5 +83,85 @@ public class metroGraph //extends JPanel
         }
         return null;
     }
+
+    public List<String> path()
+    {
+
+            Station startNode = getStation(start);
+            Station endNode = getStation(end);
+
+            // setup for A*
+            HashMap<Station,Station> parentMap = new HashMap<Station, Station>();
+            HashSet<Station> visited = new HashSet<Station>();
+            Map<Station, Double> distances = initializeAllToInfinity();
+
+            Queue<Station> priorityQueue = new PriorityQueue<>();
+
+            //  enque StartNode, with distance 0
+            startNode.setTimeToStart(0);
+            distances.put(startNode,0.0);
+            priorityQueue.add(startNode);
+            Station current = null;
+
+            while (!priorityQueue.isEmpty()) {
+                current = priorityQueue.remove();
+
+                if (!visited.contains(current) ){
+                    visited.add(current);
+                    // if last element in PQ reached
+                    if (current.equals(endNode)) return reconstructPath(startNode, endNode, parentMap);
+
+                    Set<Station> neighbors = current.getNeighbors().keySet();
+                    for (Station neighbor : neighbors) {
+                        if (!visited.contains(neighbor) ){
+
+                            // calculate predicted distance to the end node
+                            double predictedDistance = neighbor.getLocation().distance(endNode.getLocation());
+
+                            // 1. calculate distance to neighbor. 2. calculate dist from start node
+                            double neighborDistance = current.calculateTime(neighbor);
+                            double totalDistance = current.getTimeToStart() + neighborDistance + predictedDistance;
+
+                            // check if distance smaller
+                            if(totalDistance < distances.get(neighbor) ){
+                                // update n's distance
+                                distances.put(neighbor, totalDistance);
+                                // used for PriorityQueue
+                                neighbor.setTimeToStart(totalDistance);
+                                neighbor.setPredictedDistance(predictedDistance);
+                                // set parent
+                                parentMap.put(neighbor, current);
+                                // enqueue
+                                priorityQueue.add(neighbor);
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+    }
+
+    private Map<Station, Double> initializeAllToInfinity() {
+        Map<Station,Double> distances = new HashMap<>();
+
+        Iterator<Station> iter = vertices.iterator();
+        while (iter.hasNext()) {
+            Station node = iter.next();
+            distances.put(node, Double.POSITIVE_INFINITY);
+        }
+        return distances;
+    }
+
+    private List<String> reconstructPath(Station start, Station goal,
+                                                 Map<Station, Station> parentMap) {
+        // construct output list
+        LinkedList<String> path = new LinkedList<>();
+        Station currNode = goal;
+        while(!currNode.equals(start)){
+            path.addFirst(currNode.getName());
+            currNode = parentMap.get(currNode);
+        }
+        path.addFirst(start.getName());
+        return path;
+    }
 }
-//hi

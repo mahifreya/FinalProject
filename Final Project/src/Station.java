@@ -1,13 +1,13 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Station
 {
     private final String name;
     private List<String> colors;
-    private List<Station> neighbors;
+    private Map<Station, Integer> neighbors = new HashMap<>();
+    private double timeToStart;
 
-    public Station(String name, ArrayList<String> colors, ArrayList<Station>neighbors)
+    public Station(String name, ArrayList<String> colors, Map<Station, Integer>neighbors)
     {
         this.name = name;
         this.colors = colors;
@@ -22,8 +22,13 @@ public class Station
         return colors;
     }
 
-    public List<Station> getNeighbors(){return neighbors;};
+    public Map<Station, Integer> getNeighbors(){return neighbors;};
 
-    public void addNeighbor(Station s){neighbors.add(s);}
+    public void addNeighbor(Station s, int time){neighbors.put(s, time);}
 
+    public void setNeighbors(Map<Station, Integer> s) {neighbors = s;}
+
+    public void setTimeToStart(double time) { timeToStart = time;}
+
+    public double getTimeToStart(){return timeToStart;}
 }
