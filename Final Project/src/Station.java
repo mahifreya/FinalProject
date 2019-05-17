@@ -6,6 +6,7 @@ public class Station
     private List<String> colors;
     private Map<Station, Integer> neighbors = new HashMap<>();
     private double timeToStart;
+    private double predictedTime;
 
     public Station(String name, ArrayList<String> colors, Map<Station, Integer>neighbors)
     {
@@ -31,4 +32,8 @@ public class Station
     public void setTimeToStart(double time) { timeToStart = time;}
 
     public double getTimeToStart(){return timeToStart;}
+
+    public void setPredictedTime(double time) { predictedTime = time;}
+
+    public double getPredictedTime(){return predictedTime;}
 }
