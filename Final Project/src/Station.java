@@ -1,43 +1,29 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Station
 {
     private final String name;
-    private final String line;
-    private  Station previous;
-    private  Station next;
+    private List<String> colors;
+    private List<Station> neighbors;
 
-    public Station(String name, String line, Station previous, Station next)
+    public Station(String name, ArrayList<String> colors, ArrayList<Station>neighbors)
     {
         this.name = name;
-        this.line = line;
-        this.previous = previous;
-        this.next = next;
+        this.colors = colors;
+        this.neighbors = neighbors;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getLine() {
-        return line;
+    public List<String> getColors() {
+        return colors;
     }
 
-    public Station getNext() {
-        return next;
-    }
+    public List<Station> getNeighbors(){return neighbors;};
 
-    public void setNext(Station n)
-    {
-        next = n;
-    }
-
-    public Station getPrevious()
-    {
-        return previous;
-    }
-
-    public void setPrevious(Station p)
-    {
-        previous = p;
-    }
+    public void addNeighbor(Station s){neighbors.add(s);}
 
 }

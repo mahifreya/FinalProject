@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.util.*;
 import org.json.*;
 
+
 public class metroGraph //extends JPanel
 {
     private List<Station> vertices = new ArrayList<Station>();
@@ -22,7 +23,7 @@ public class metroGraph //extends JPanel
         try{
             Scanner console = new Scanner(new File("redline.txt"));
             String js = "";
-            while(console.hasNextLine())
+            while(console.hasNextLine());
                 js+= console.nextLine();
             JSONObject obj = new JSONObject(js);
             JSONArray stations = obj.getJSONArray("Stations");
