@@ -10,12 +10,12 @@ public class Main
         String end = JOptionPane.showInputDialog("Enter your end station");
 
         metroGraph m = new metroGraph(start, end);
-     /*   JFrame frame = new JFrame();
-        frame.setContentPane(m);
+
+        JFrame frame = new JFrame("Metro routes");
         frame.setSize(1500,1500);
         frame.setLocation((int)CENTER_ALIGNMENT, (int)CENTER_ALIGNMENT);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setContentPane(m);
         frame.setVisible(true);
-*/
     }
 }
