@@ -25,10 +25,8 @@ public class metroGraph extends JPanel
     private JButton search;
     private JButton reset;
 
-    public metroGraph(String start, String end)
+    public metroGraph()
     {
-        this.start = start;
-        this.end = end;
         init();
         
         setLayout(new BorderLayout());

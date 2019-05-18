@@ -6,10 +6,7 @@ public class Main
 {
     public static void main(String [] args)
     {
-        String start = JOptionPane.showInputDialog("Enter your start station");
-        String end = JOptionPane.showInputDialog("Enter your end station");
-
-        metroGraph m = new metroGraph(start, end);
+        metroGraph m = new metroGraph();
 
         JFrame frame = new JFrame("Metro routes");
         frame.setSize(1500,1500);
