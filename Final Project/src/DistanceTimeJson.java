@@ -38,6 +38,7 @@ public class DistanceTimeJson
             if (entity != null)
             {
                 json =  EntityUtils.toString(entity);
+             //   System.out.println(json);
             }
         }
         catch (Exception e)

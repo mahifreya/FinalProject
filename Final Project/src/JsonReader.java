@@ -24,7 +24,7 @@ public class JsonReader
 
             URI uri = builder.build();
             HttpGet request = new HttpGet(uri);
-            request.setHeader("api_key", "{subscription key}");
+            request.setHeader("api_key", "fee26a6889234975a3b7eba5974aac13");
 
 
             // Request body
@@ -37,6 +37,7 @@ public class JsonReader
             if (entity != null)
             {
                 json =  EntityUtils.toString(entity);
+              //  System.out.println(json);
             }
         }
         catch (Exception e)

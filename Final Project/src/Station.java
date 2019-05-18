@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class Station
+public class Station implements Comparable
 {
     private final String stationCode;
     private final String name;
@@ -9,12 +9,12 @@ public class Station
     private double timeToStart;
     private double predictedTime;
 
-    public Station(String stationCode, String name, ArrayList<String> colors, Map<Station, Integer>neighbors)
+    public Station(String stationCode, String name, ArrayList<String> colors)
     {
         this.stationCode = stationCode;
         this.name = name;
         this.colors = colors;
-        this.neighbors = neighbors;
+       // this.neighbors = neighbors;
     }
 
     public String getStationCode() { return stationCode; }
@@ -36,4 +36,14 @@ public class Station
     public void setPredictedTime(double time) { predictedTime = time;}
 
     public double getPredictedTime(){return predictedTime;}
+
+    @Override
+    public int compareTo(Object o) {
+        if(o instanceof Station)
+        {
+            Station other = (Station) o;
+            return (int)(this.timeToStart - other.getTimeToStart());
+        }
+        return Integer.MAX_VALUE;
+    }
 }
