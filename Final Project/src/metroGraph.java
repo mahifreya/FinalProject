@@ -2,14 +2,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
+
 import org.json.*;
 
 
 public class metroGraph extends JPanel
 {
-    //private List<Station> vertices = new ArrayList<Station>();
+    private List<Station> vertices = new ArrayList<Station>();
     private String start;
     private String end;
+    private final double speed = 33;
     private final String[] colors = {"RD","YL", "GR", "BL", "OR", "SV"};
     private JLabel title;
     private JLabel pic;
@@ -26,7 +29,7 @@ public class metroGraph extends JPanel
     {
         this.start = start;
         this.end = end;
-        //init();
+        init();
         
         setLayout(new BorderLayout());
         
@@ -77,7 +80,7 @@ public class metroGraph extends JPanel
         
     }
 
-/*    public void init() //initializes the graph
+    public void init() //initializes the graph
     {
         JsonReader read;
         for (int i = 0; i < colors.length; i++)
@@ -222,13 +225,32 @@ public class metroGraph extends JPanel
         path.addFirst(start.getName());
         return path;
     }
+
+    private double predictTime(Station start, Station end)
+    {
+        JsonReader distance = new JsonReader("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo[?" + start.getStationCode() + "][&" + end.getStationCode() + "]");
+        JSONObject obj = new JSONObject(distance.getJSON());
+        JSONObject item = obj.getJSONObject("StationToStationInfos");
+        double miles = Double.parseDouble(item.getString("CompositeMiles"));
+        return miles / speed * 60;
+    }
+
+    private int actualTime(Station start, Station end)
+    {
+        JsonReader time = new JsonReader("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo[?" + start.getStationCode() + "][&" + end.getStationCode() + "]");
+        JSONObject obj = new JSONObject(time.getJSON());
+        JSONObject item = obj.getJSONObject("StationToStationInfos");
+        int mins = Integer.parseInt(item.getString("RailTime"));
+        return mins;
+    }
+
     private class Listener implements ActionListener
     {
       public void actionPerformed(ActionEvent e)
       {
          if (e.getSource() == search)
-            path.setText("/insert path here/");
          {
+             path.setText("/insert path here/");
          }
          else
          {
