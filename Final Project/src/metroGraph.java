@@ -230,7 +230,7 @@ public class metroGraph extends JPanel
         JSONObject obj = new JSONObject(distance.getJSON());
         JSONArray item = obj.getJSONArray("StationToStationInfos");
         JSONObject mile = item.getJSONObject(0);
-        double miles = Double.parseDouble(mile.getString("CompositeMiles"));
+        double miles = mile.getDouble("CompositeMiles");
         return miles / speed * 60;
     }
 
@@ -240,7 +240,6 @@ public class metroGraph extends JPanel
         JSONObject obj = new JSONObject(time.getJSON());
         JSONArray item = obj.getJSONArray("StationToStationInfos");
         JSONObject rail = item.getJSONObject(0);
-        //return Integer.parseInt(rail.getString("RailTime"));
         return rail.getInt("RailTime");
     }
 
