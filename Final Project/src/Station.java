@@ -27,6 +27,16 @@ public class Station implements Comparable
 
     public void addNeighbor(Station s, int time){neighbors.put(s, time);}
 
+    public void addNeighbors(Map<Station, Integer>s)
+    {
+        Iterator<Station> iter = s.keySet().iterator();
+        while(iter.hasNext())
+        {
+            Station station = iter.next();
+            addNeighbor(station, s.get(station));
+        }
+    }
+
     public void setNeighbors(Map<Station, Integer> s) {neighbors = s;}
 
     public void setTimeToStart(double time) { timeToStart = time;}

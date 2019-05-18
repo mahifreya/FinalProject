@@ -25,7 +25,7 @@ public class DistanceTimeJson
 
             URI uri = builder.build();
             HttpGet request = new HttpGet(uri);
-            request.setHeader("api_key", "fee26a6889234975a3b7eba5974aac13");
+            request.setHeader("api_key", "44444444444");
 
 
             // Request body
