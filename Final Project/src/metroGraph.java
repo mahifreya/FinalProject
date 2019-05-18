@@ -83,7 +83,7 @@ public class metroGraph extends JPanel
         JsonReader read;
         for (int i = 0; i < colors.length; i++)
         {
-            read = new JsonReader("https://api.wmata.com/Rail.svc/json/jStations[?" + colors[i] + "]");
+            read = new JsonReader("https://api.wmata.com/Rail.svc/json/jStations", colors[i]);
             JSONObject obj = new JSONObject(read.getJSON());
             JSONArray stations = obj.getJSONArray("Stations");
             for(int k = 0; k < stations.length(); k++)

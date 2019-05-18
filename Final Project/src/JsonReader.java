@@ -5,14 +5,14 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 public class JsonReader
 {
     private String json = "";
-    public JsonReader(String url)
+
+    public JsonReader(String url, String code)
     {
         HttpClient httpclient = HttpClients.createDefault();
 
@@ -20,10 +20,11 @@ public class JsonReader
         {
             URIBuilder builder = new URIBuilder(url);
 
+            builder.setParameter("LineCode", code);
 
             URI uri = builder.build();
             HttpGet request = new HttpGet(uri);
-            request.setHeader("api_key", "fee26a6889234975a3b7eba5974aac13");
+            request.setHeader("api_key", "{subscription key}");
 
 
             // Request body
@@ -35,7 +36,7 @@ public class JsonReader
 
             if (entity != null)
             {
-               json =  EntityUtils.toString(entity);
+                json =  EntityUtils.toString(entity);
             }
         }
         catch (Exception e)
