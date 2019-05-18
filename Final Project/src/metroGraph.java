@@ -226,7 +226,7 @@ public class metroGraph extends JPanel
 
     private double predictTime(Station start, Station end)
     {
-        JsonReader distance = new JsonReader("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo[?" + start.getStationCode() + "][&" + end.getStationCode() + "]");
+        DistanceTimeJson distance = new DistanceTimeJson("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo", start.getStationCode(), end.getStationCode());
         JSONObject obj = new JSONObject(distance.getJSON());
         JSONObject item = obj.getJSONObject("StationToStationInfos");
         double miles = Double.parseDouble(item.getString("CompositeMiles"));
@@ -235,7 +235,7 @@ public class metroGraph extends JPanel
 
     private int actualTime(Station start, Station end)
     {
-        JsonReader time = new JsonReader("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo[?" + start.getStationCode() + "][&" + end.getStationCode() + "]");
+        DistanceTimeJson time = new DistanceTimeJson("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfoe", start.getStationCode(), end.getStationCode());
         JSONObject obj = new JSONObject(time.getJSON());
         JSONObject item = obj.getJSONObject("StationToStationInfos");
         int mins = Integer.parseInt(item.getString("RailTime"));
@@ -248,7 +248,20 @@ public class metroGraph extends JPanel
         {
             if (e.getSource() == search)
             {
-                path.setText("/insert path here/");
+                if(f.getText().equals("") || t.getText().equals(""))
+                    path.setText("Invalid station entered. Please check the start and end stations.");
+                else
+                {
+                    start = f.getText();
+                    end = t.getText();
+                    String p = "";
+                    ArrayList<String> list = (ArrayList<String>)path();
+                    for(int i = 0; i < list.size(); i++)
+                    {
+                        p+=list.get(i) + " ";
+                    }
+                    path.setText(p);
+                }
             }
             else
             {
