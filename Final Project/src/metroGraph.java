@@ -1,16 +1,18 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.List;
+
 import org.json.*;
+
 
 public class metroGraph extends JPanel
 {
     private List<Station> vertices = new ArrayList<Station>();
     private String start;
     private String end;
+    private final double speed = 33;
     private final String[] colors = {"RD","YL", "GR", "BL", "OR", "SV"};
     private JLabel title;
     private JLabel pic;
@@ -23,23 +25,21 @@ public class metroGraph extends JPanel
     private JButton search;
     private JButton reset;
 
-    public metroGraph(String start, String end)
+    public metroGraph()
     {
-        this.start = start;
-        this.end = end;
         init();
-        
+
         setLayout(new BorderLayout());
-        
+
         pic1 = new ImageIcon("metromap.jpg");
         pic = new JLabel(pic1);
         add(pic, BorderLayout.CENTER);
-        
+
         title = new JLabel("Metro Map");
         title.setFont(new Font("Times New Roman", Font.BOLD, 50));
         add(title, BorderLayout.NORTH);
         title.setHorizontalAlignment(SwingConstants.CENTER);
-        
+
         JPanel west = new JPanel();
         west.setLayout(new FlowLayout());
         from = new JLabel("Start: ");
@@ -49,7 +49,7 @@ public class metroGraph extends JPanel
         west.add(from);
         west.add(f);
         add(west, BorderLayout.WEST);
-        
+
         JPanel east = new JPanel();
         east.setLayout(new FlowLayout());
         to = new JLabel("End: ");
@@ -59,7 +59,7 @@ public class metroGraph extends JPanel
         east.add(to);
         east.add(t);
         add(east, BorderLayout.EAST);
-        
+
         JPanel south = new JPanel();
         south.setLayout(new BorderLayout());
         search = new JButton("Search");
@@ -75,7 +75,7 @@ public class metroGraph extends JPanel
         south.add(path, BorderLayout.CENTER);
         path.setHorizontalAlignment(SwingConstants.CENTER);
         add(south, BorderLayout.SOUTH);
-        
+
     }
 
     public void init() //initializes the graph
@@ -98,28 +98,28 @@ public class metroGraph extends JPanel
                 {
                     ArrayList<String> lines = new ArrayList<>();
                     lines.add(item.getString("LineCode1"));
-                    vertices.add(new Station(name, lines, null));
+                    vertices.add(new Station(item.getString("Code"), name, lines, null));
                 }
             }
             for(int h = 0; h < vertices.size(); h++)
             {
                 if(i == 0) {
-                    vertices.get(i).addNeighbor(vertices.get(i+1), 0);
+                    vertices.get(i).addNeighbor(vertices.get(i+1), actualTime(vertices.get(i), vertices.get(i + 1)));
                 }
                 else if(i == vertices.size() - 1)
                 {
-                    vertices.get(i).addNeighbor(vertices.get(i-1), 0);
-                    vertices.get(i).addNeighbor(vertices.get(i+1), 0);
+                    vertices.get(i).addNeighbor(vertices.get(i-1), actualTime(vertices.get(i), vertices.get(i-1)));
+                    vertices.get(i).addNeighbor(vertices.get(i+1), actualTime(vertices.get(i), vertices.get(i + 1)));
                 }
                 else
                 {
-                    vertices.get(i).addNeighbor(vertices.get(i-1), 0);
+                    vertices.get(i).addNeighbor(vertices.get(i-1), actualTime(vertices.get(i), vertices.get(i - 1)));
                 }
             }
 
 
         }
-             //JsonReader read = new JsonReader("https://api.wmata.com/Rail.svc/json/jLines");
+        //JsonReader read = new JsonReader("https://api.wmata.com/Rail.svc/json/jLines");
 
     }
 
@@ -146,58 +146,58 @@ public class metroGraph extends JPanel
     public List<String> path()
     {
 
-            Station startNode = getStation(start);
-            Station endNode = getStation(end);
+        Station startNode = getStation(start);
+        Station endNode = getStation(end);
 
-            // setup for A*
-            HashMap<Station,Station> parentMap = new HashMap<Station, Station>();
-            HashSet<Station> visited = new HashSet<Station>();
-            Map<Station, Double> distances = initializeAllToInfinity();
+        // setup for A*
+        HashMap<Station,Station> parentMap = new HashMap<Station, Station>();
+        HashSet<Station> visited = new HashSet<Station>();
+        Map<Station, Double> distances = initializeAllToInfinity();
 
-            Queue<Station> priorityQueue = new PriorityQueue<>();
+        Queue<Station> priorityQueue = new PriorityQueue<>();
 
-            //  enque StartNode, with distance 0
-            startNode.setTimeToStart(0);
-            distances.put(startNode,0.0);
-            priorityQueue.add(startNode);
-            Station current = null;
+        //  enque StartNode, with distance 0
+        startNode.setTimeToStart(0);
+        distances.put(startNode,0.0);
+        priorityQueue.add(startNode);
+        Station current = null;
 
-            while (!priorityQueue.isEmpty()) {
-                current = priorityQueue.remove();
+        while (!priorityQueue.isEmpty()) {
+            current = priorityQueue.remove();
 
-                if (!visited.contains(current) ){
-                    visited.add(current);
-                    // if last element in PQ reached
-                    if (current.equals(endNode)) return reconstructPath(startNode, endNode, parentMap);
+            if (!visited.contains(current) ){
+                visited.add(current);
+                // if last element in PQ reached
+                if (current.equals(endNode)) return reconstructPath(startNode, endNode, parentMap);
 
-                    Set<Station> neighbors = current.getNeighbors().keySet();
-                    for (Station neighbor : neighbors) {
-                        if (!visited.contains(neighbor) ){
+                Set<Station> neighbors = current.getNeighbors().keySet();
+                for (Station neighbor : neighbors) {
+                    if (!visited.contains(neighbor) ){
 
-                            // calculate predicted distance to the end node
-                            double predictedDistance = neighbor.getLocation().distance(endNode.getLocation());
+                        // calculate predicted time to the end node
+                        double predictedTime = predictTime(neighbor, endNode);
 
-                            // 1. calculate distance to neighbor. 2. calculate dist from start node
-                            double neighborDistance = current.calculateTime(neighbor);
-                            double totalDistance = current.getTimeToStart() + neighborDistance + predictedDistance;
+                        // 1. calculate time to neighbor. 2. calculate time from start node
+                        double neighborTime = current.getNeighbors().get(neighbor);
+                        double totalTime = current.getTimeToStart() + neighborTime + predictedTime;
 
-                            // check if distance smaller
-                            if(totalDistance < distances.get(neighbor) ){
-                                // update n's distance
-                                distances.put(neighbor, totalDistance);
-                                // used for PriorityQueue
-                                neighbor.setTimeToStart(totalDistance);
-                                neighbor.setPredictedDistance(predictedDistance);
-                                // set parent
-                                parentMap.put(neighbor, current);
-                                // enqueue
-                                priorityQueue.add(neighbor);
-                            }
+                        // check if time smaller
+                        if(totalTime < distances.get(neighbor) ){
+                            // update n's time
+                            distances.put(neighbor, totalTime);
+                            // used for PriorityQueue
+                            neighbor.setTimeToStart(totalTime);
+                            neighbor.setPredictedTime(predictedTime);
+                            // set parent
+                            parentMap.put(neighbor, current);
+                            // enqueue
+                            priorityQueue.add(neighbor);
                         }
                     }
                 }
             }
-            return null;
+        }
+        return null;
     }
 
     private Map<Station, Double> initializeAllToInfinity() {
@@ -212,7 +212,7 @@ public class metroGraph extends JPanel
     }
 
     private List<String> reconstructPath(Station start, Station goal,
-                                                 Map<Station, Station> parentMap) {
+                                         Map<Station, Station> parentMap) {
         // construct output list
         LinkedList<String> path = new LinkedList<>();
         Station currNode = goal;
@@ -224,32 +224,40 @@ public class metroGraph extends JPanel
         return path;
     }
 
+    private double predictTime(Station start, Station end)
+    {
+        JsonReader distance = new JsonReader("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo[?" + start.getStationCode() + "][&" + end.getStationCode() + "]");
+        JSONObject obj = new JSONObject(distance.getJSON());
+        JSONObject item = obj.getJSONObject("StationToStationInfos");
+        double miles = Double.parseDouble(item.getString("CompositeMiles"));
+        return miles / speed * 60;
+    }
+
+    private int actualTime(Station start, Station end)
+    {
+        JsonReader time = new JsonReader("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo[?" + start.getStationCode() + "][&" + end.getStationCode() + "]");
+        JSONObject obj = new JSONObject(time.getJSON());
+        JSONObject item = obj.getJSONObject("StationToStationInfos");
+        int mins = Integer.parseInt(item.getString("RailTime"));
+        return mins;
+    }
+
     private class Listener implements ActionListener
     {
-      public void actionPerformed(ActionEvent e)
-      {
-         if (e.getSource() == search)
-         {
-            if (f.getText().equals("") || t.getText().equals(""))
-               path.setText("Invalid station entered. Please check the start and end stations.");
+        public void actionPerformed(ActionEvent e)
+        {
+            if (e.getSource() == search)
+            {
+                path.setText("/insert path here/");
+            }
             else
             {
-               start = f.getText();
-               end = t.getText();
-               String p = ""
-               ArrayList<String> list = (ArrayList<String>)path();
-               for (int i = 0; i < list.size(); i++)
-                  p += list.get(i) + " ";
+                f.setText("");
+                path.setText("Path: ");
+                t.setText("");
             }
-            
-            path.setText(p);
-         }
-         else
-         {
-            path.setText("Path: ");
-            f.setText("");
-            t.setText("");
-         }
-      }
+        }
     }
 }
+
+
