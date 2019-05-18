@@ -1,6 +1,4 @@
 import javax.swing.*;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.*;
 import org.json.*;
 
@@ -46,16 +44,16 @@ public class metroGraph extends JPanel
             for(int h = 0; h < vertices.size(); h++)
             {
                 if(i == 0) {
-                    vertices.get(i).addNeighbor(vertices.get(i+1), 0);
+                    vertices.get(i).addNeighbor(vertices.get(i+1), actualTime(vertices.get(i), vertices.get(i + 1)));
                 }
                 else if(i == vertices.size() - 1)
                 {
-                    vertices.get(i).addNeighbor(vertices.get(i-1), 0);
-                    vertices.get(i).addNeighbor(vertices.get(i+1), 0);
+                    vertices.get(i).addNeighbor(vertices.get(i-1), actualTime(vertices.get(i), vertices.get(i-1)));
+                    vertices.get(i).addNeighbor(vertices.get(i+1), actualTime(vertices.get(i), vertices.get(i + 1)));
                 }
                 else
                 {
-                    vertices.get(i).addNeighbor(vertices.get(i-1), 0);
+                    vertices.get(i).addNeighbor(vertices.get(i-1), actualTime(vertices.get(i), vertices.get(i - 1)));
                 }
             }
 
@@ -166,6 +164,14 @@ public class metroGraph extends JPanel
         return path;
     }
 
+    private int actualTime(Station start, Station end)
+    {
+        JsonReader time = new JsonReader("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo[?" + start.getStationCode() + "][&" + end.getStationCode()+ "]");
+        JSONObject obj = new JSONObject(time.getJSON());
+        JSONObject item = obj.getJSONObject("StationToStationInfos");
+        int minutes = Integer.parseInt(item.getString("RailTime"));
+        return minutes;
+    }
     private double predictTime(Station start, Station end)
     {
         JsonReader distance = new JsonReader("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo[?" + start.getStationCode() + "][&" + end.getStationCode()+ "]");
