@@ -1,24 +1,83 @@
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 import org.json.*;
 
 
 public class metroGraph extends JPanel
 {
-    private List<Station> vertices = new ArrayList<Station>();
+    //private List<Station> vertices = new ArrayList<Station>();
     private String start;
     private String end;
     private final String[] colors = {"RD","YL", "GR", "BL", "OR", "SV"};
-    private final int speed = 33;
+    private JLabel title;
+    private JLabel pic;
+    private JLabel from;
+    private JLabel to;
+    private JLabel path;
+    private JTextField f;
+    private JTextField t;
+    private ImageIcon pic1;
+    private JButton search;
+    private JButton reset;
 
     public metroGraph(String start, String end)
     {
         this.start = start;
         this.end = end;
-        init();
+        //init();
+        
+        setLayout(new BorderLayout());
+        
+        pic1 = new ImageIcon("metromap.jpg");
+        pic = new JLabel(pic1);
+        add(pic, BorderLayout.CENTER);
+        
+        title = new JLabel("Metro Map");
+        title.setFont(new Font("Times New Roman", Font.BOLD, 50));
+        add(title, BorderLayout.NORTH);
+        title.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        JPanel west = new JPanel();
+        west.setLayout(new FlowLayout());
+        from = new JLabel("Start: ");
+        from.setFont(new Font("Times New Roman", Font.BOLD, 24));
+        f = new JTextField(10);
+        f.setFont(new Font("Times New Roman", Font.BOLD, 24));
+        west.add(from);
+        west.add(f);
+        add(west, BorderLayout.WEST);
+        
+        JPanel east = new JPanel();
+        east.setLayout(new FlowLayout());
+        to = new JLabel("End: ");
+        to.setFont(new Font("Times New Roman", Font.BOLD, 24));
+        t = new JTextField(10);
+        t.setFont(new Font("Times New Roman", Font.BOLD, 24));
+        east.add(to);
+        east.add(t);
+        add(east, BorderLayout.EAST);
+        
+        JPanel south = new JPanel();
+        south.setLayout(new BorderLayout());
+        search = new JButton("Search");
+        search.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        search.addActionListener(new Listener());
+        reset = new JButton("Reset");
+        reset.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        reset.addActionListener(new Listener());
+        path = new JLabel("Path: ");
+        path.setFont(new Font("Times New Roman", Font.BOLD, 20));
+        south.add(search, BorderLayout.WEST);
+        south.add(reset, BorderLayout.EAST);
+        south.add(path, BorderLayout.CENTER);
+        path.setHorizontalAlignment(SwingConstants.CENTER);
+        add(south, BorderLayout.SOUTH);
+        
     }
 
-    public void init() //initializes the graph
+/*    public void init() //initializes the graph
     {
         JsonReader read;
         for (int i = 0; i < colors.length; i++)
@@ -163,21 +222,20 @@ public class metroGraph extends JPanel
         path.addFirst(start.getName());
         return path;
     }
-
-    private int actualTime(Station start, Station end)
+    private class Listener implements ActionListener
     {
-        JsonReader time = new JsonReader("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo[?" + start.getStationCode() + "][&" + end.getStationCode()+ "]");
-        JSONObject obj = new JSONObject(time.getJSON());
-        JSONObject item = obj.getJSONObject("StationToStationInfos");
-        int minutes = Integer.parseInt(item.getString("RailTime"));
-        return minutes;
-    }
-    private double predictTime(Station start, Station end)
-    {
-        JsonReader distance = new JsonReader("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo[?" + start.getStationCode() + "][&" + end.getStationCode()+ "]");
-        JSONObject obj = new JSONObject(distance.getJSON());
-        JSONObject item = obj.getJSONObject("StationToStationInfos");
-        double miles = Double.parseDouble(item.getString("CompositeMiles"));
-        return miles / speed * 60;
+      public void actionPerformed(ActionEvent e)
+      {
+         if (e.getSource() == search)
+            path.setText("/insert path here/");
+         {
+         }
+         else
+         {
+            f.setText("");
+            path.setText("Path: ");
+            t.setText("");
+         }
+      }
     }
 }
