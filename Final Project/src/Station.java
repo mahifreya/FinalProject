@@ -37,8 +37,6 @@ public class Station implements Comparable
         }
     }
 
-    public void setNeighbors(Map<Station, Integer> s) {neighbors = s;}
-
     public void setTimeToStart(double time) { timeToStart = time;}
 
     public double getTimeToStart(){return timeToStart;}
