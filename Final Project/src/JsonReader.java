@@ -7,6 +7,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
+//this class is used to get the json that gives the station list element for a given line code
 public class JsonReader
 {
     private String json = "";

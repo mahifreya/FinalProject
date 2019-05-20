@@ -14,8 +14,10 @@ public class metroGraph extends JPanel
     private String end;
     private final String[] colors = {"RD","YL", "GR", "BL", "OR", "SV"};
     private JLabel path;
-    private JTextField f;
-    private JTextField t;
+  //  private JTextField f;
+    private JComboBox<String> fromRep;
+ //   private JTextField t;
+    private JComboBox<String> toRep;
     private JButton search;
     //I moved all the Jbuttons and labels that my IDE said "could be converted to local variables" to the constructor
 
@@ -40,20 +42,35 @@ public class metroGraph extends JPanel
         west.setLayout(new FlowLayout());
         JLabel from = new JLabel("Start: ");
         from.setFont(new Font("Times New Roman", Font.BOLD, 24));
-        f = new JTextField(10);
-        f.setFont(new Font("Times New Roman", Font.BOLD, 24));
+     //   f = new JTextField(10);
+
+        String [] verticesNames = new String [vertices.size()];
+        int index = 0;
+        for(Station s: vertices)
+            verticesNames[index++] = s.getName();
+
+        fromRep = new JComboBox<String>(verticesNames);
+        fromRep.setMaximumSize(new Dimension(30, 30));
+        fromRep.setFont(new Font("Times New Roman", Font.BOLD, 24));
+      //  f.setFont(new Font("Times New Roman", Font.BOLD, 24));
         west.add(from);
-        west.add(f);
+       // west.add(f);
+        west.add(fromRep);
         add(west, BorderLayout.WEST);
 
         JPanel east = new JPanel();
         east.setLayout(new FlowLayout());
         JLabel to = new JLabel("End: ");
         to.setFont(new Font("Times New Roman", Font.BOLD, 24));
-        t = new JTextField(10);
-        t.setFont(new Font("Times New Roman", Font.BOLD, 24));
+      //  t = new JTextField(10);
+
+        toRep = new JComboBox<String>(verticesNames);
+        toRep.setMaximumSize(new Dimension(30, 30));
+        toRep.setFont(new Font("Times New Roman", Font.BOLD, 24));
+      //  t.setFont(new Font("Times New Roman", Font.BOLD, 24));
         east.add(to);
-        east.add(t);
+       // east.add(t);
+        east.add(toRep);
         add(east, BorderLayout.EAST);
 
         JPanel south = new JPanel();
@@ -124,7 +141,7 @@ public class metroGraph extends JPanel
 
             //calls the method to set the neighbors of each station thats in vertices
             setNeighbors(0, finalPath);
-            
+
             i++;
         }
 
@@ -363,12 +380,15 @@ public class metroGraph extends JPanel
             if (e.getSource() == search)
             {
                 //makes sure that both the start and end station are valid
-                if(f.getText().equals("") || t.getText().equals("") || getStation(f.getText()) == null || getStation(t.getText()) == null)
+               // if(f.getText().equals("") || t.getText().equals("") || getStation(f.getText()) == null || getStation(t.getText()) == null)
+                if(fromRep.getSelectedItem().equals("") ||toRep.getSelectedItem().equals(""))
                     path.setText("Invalid station entered. Please check the start and end stations.");
                 else
                 {
-                    start = f.getText();
-                    end = t.getText();
+                  //  start = f.getText();
+                    start = (String)fromRep.getSelectedItem();
+                   // end = t.getText();
+                    end = (String)toRep.getSelectedItem();
                     String p = "";
                     List<String> list = path();
                     if(list!= null)
@@ -385,9 +405,9 @@ public class metroGraph extends JPanel
             //the reset button was clicked
             else
             {
-                f.setText("");
+              //  f.setText("");
                 path.setText("Path: ");
-                t.setText("");
+               // t.setText("");
             }
         }
     }
