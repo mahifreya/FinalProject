@@ -56,4 +56,14 @@ public class Station implements Comparable
         }
         return Integer.MAX_VALUE;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Station)
+        {
+            Station other = (Station) obj;
+            return other.getName().equals(name);
+        }
+        return false;
+    }
 }

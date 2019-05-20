@@ -1,4 +1,3 @@
-// // This sample uses the Apache HTTP client from HTTP Components (http://hc.apache.org/httpcomponents-client-ga/)
 import java.net.URI;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -37,7 +36,6 @@ public class JsonReader
             if (entity != null)
             {
                 json =  EntityUtils.toString(entity);
-                System.out.println(json);
             }
         }
         catch (Exception e)

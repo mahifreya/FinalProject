@@ -81,33 +81,87 @@ public class metroGraph extends JPanel
     public void init() //initializes the graph
     {
         JsonReader read;
-        List<Station> temp = new ArrayList<Station>();
-        int i = 0, j = 0;
-        while (i < colors.length)
+        SequenceJson sequence;
+       // List<Station> temp = new ArrayList<Station>();
+        int i = 0, j = 0, k = 0, l = 0;
+        while (i < colors.length) //looping over all the color lines
         {
             read = new JsonReader("https://api.wmata.com/Rail.svc/json/jStations", colors[i]);
+            System.out.println(read.getJSON());
             JSONObject obj = new JSONObject(read.getJSON());
             JSONArray stations = obj.getJSONArray("Stations");
-            while (j < stations.length())
+
+            while (j < stations.length()) //looping through each station of a given line
             {
                 JSONObject item = stations.getJSONObject(j);
                 String name = item.getString("Name");
-           /*     if(hasStation(name))
+                System.out.println(name);
+                if(hasStation(name))
                 {
-                    getStation(name).getColors().add(item.getString("LineCode1"));
-                   // getStation(name).getNeighbors().
+                    if( getStation(name).getColors().size() == 1)
+                        getStation(name).getColors().add(item.getString("LineCode1"));
+                    else if(getStation(name).getColors().size() == 2)
+                        getStation(name).getColors().add(item.getString("LineCode2"));
+                    else
+                        getStation(name).getColors().add(item.getString("LineCode3"));
                 }
                 else
-                {*/
+                {
                     ArrayList<String> lines = new ArrayList<>();
                     lines.add(item.getString("LineCode1"));
-                    temp.add(new Station(item.getString("Code"), name, lines));
-                    j++;
-              //  }
+                    vertices.add(new Station(item.getString("Code"), name, lines));
+                }
+                j++;
             }
+            int length = 0;
+            String startCode = "";
+            String endCode = "";
+            while(k < stations.length()-1)
+            {
+                JSONObject item = stations.getJSONObject(k);
+                JSONObject compare = stations.getJSONObject(k+1);
+                sequence = new SequenceJson("https://api.wmata.com/Rail.svc/json/jPath",item.getString("Code"), compare.getString("Code"));
+
+                JSONObject pathHelp = new JSONObject(sequence.getJSON());
+                JSONArray path = pathHelp.getJSONArray("Path");
+                if (path.length() > length )
+                {
+                    length = path.length();
+                    startCode = item.getString("Code");
+                    endCode = compare.getString("Code");
+                }
+                k++;
+            }
+
+            sequence = new SequenceJson("https://api.wmata.com/Rail.svc/json/jPath", startCode, endCode);
+            JSONObject order = new JSONObject(sequence.getJSON());
+            JSONArray finalPath = order.getJSONArray("Path");
+            while(l < finalPath.length())
+            {
+                Station current =  getStation(finalPath.getJSONObject(l).getString("StationName"));
+                if(l == 0)
+                {
+                    Station next = getStation(finalPath.getJSONObject(l+1).getString("StationName"));
+                    current.addNeighbor(next, actualTime(current, next));
+                }
+                else if(l == finalPath.length()-1)
+                {
+                    Station previous = getStation(finalPath.getJSONObject(l-1).getString("StationName"));
+                    current.addNeighbor(previous, actualTime(current, previous));
+                }
+                else
+                {
+                    Station next = getStation(finalPath.getJSONObject(l+1).getString("StationName"));
+                    Station previous = getStation(finalPath.getJSONObject(l-1).getString("StationName"));
+                    current.addNeighbor(next, actualTime(current, next));
+                    current.addNeighbor(previous, actualTime(current, previous));
+                }
+                l++;
+            }
+
             i++;
         }
-            for(int h = 0; h < temp.size()-1; h++)
+           /* for(int h = 0; h < temp.size()-1; h++)
             {
                 if(h == 0) {
                     temp.get(h).addNeighbor(temp.get(h+1), actualTime(temp.get(h), temp.get(h + 1)));
@@ -138,7 +192,7 @@ public class metroGraph extends JPanel
                if (!flag)
                    vertices.add(temp.get(k));
                flag = false;
-           }
+           }*/
 
         }
         //JsonReader read = new JsonReader("https://api.wmata.com/Rail.svc/json/jLines");
@@ -167,16 +221,14 @@ public class metroGraph extends JPanel
     {
         for(Station s: vertices)
             System.out.print(s.getName() + " ");
+        System.out.println();
     }
     public List<String> path()
     {
         printStations();
         Station startNode = getStation(start);
-        System.out.println(start);
-        System.out.println(startNode.getName());
+        System.out.println(startNode == null);
         Station endNode = getStation(end);
-        System.out.println(end);
-        System.out.println(endNode.getName());
 
         // setup for A*
         HashMap<Station,Station> parentMap = new HashMap<Station, Station>();
@@ -191,27 +243,32 @@ public class metroGraph extends JPanel
         priorityQueue.add(startNode);
         Station current = null;
 
-        while (!priorityQueue.isEmpty()) {
+        while (!priorityQueue.isEmpty())
+        {
+            System.out.println("entered the loop");
             current = priorityQueue.remove();
 
-            if (!visited.contains(current) ){
+            if (!visited.contains(current) )
+            {
                 visited.add(current);
                 // if last element in PQ reached
                 if (current.equals(endNode)) return reconstructPath(startNode, endNode, parentMap);
 
                 Set<Station> neighbors = current.getNeighbors().keySet();
-                for (Station neighbor : neighbors) {
-                    if (!visited.contains(neighbor) ){
+                for (Station neighbor : neighbors)
+                {
+                    if (!visited.contains(neighbor) )
+                    {
 
                         // calculate predicted time to the end node
                         double predictedTime = predictTime(neighbor, endNode);
-
                         // 1. calculate time to neighbor. 2. calculate time from start node
                         double neighborTime = current.getNeighbors().get(neighbor);
                         double totalTime = current.getTimeToStart() + neighborTime + predictedTime;
 
                         // check if time smaller
-                        if(totalTime < distances.get(neighbor) ){
+                        if(totalTime < distances.get(neighbor) )
+                        {
                             // update n's time
                             distances.put(neighbor, totalTime);
                             // used for PriorityQueue
@@ -257,31 +314,33 @@ public class metroGraph extends JPanel
     {
         DistanceTimeJson distance = new DistanceTimeJson("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo", start.getStationCode(), end.getStationCode());
         JSONObject obj = new JSONObject(distance.getJSON());
-       try {
-           JSONArray item = obj.getJSONArray("StationToStationInfos");
-           JSONObject mile = item.getJSONObject(0);
-           double miles = mile.getDouble("CompositeMiles");
-           return miles / speed * 60;
-       }
-       catch(org.json.JSONException e)
-       {
-           System.out.println("this is the one that failed");
-           return -10;
-       }
+        try
+        {
+            JSONArray item = obj.getJSONArray("StationToStationInfos");
+            JSONObject mile = item.getJSONObject(0);
+            double miles = mile.getDouble("CompositeMiles");
+            return miles / speed * 60;
+        }
+        catch(org.json.JSONException e)
+        {
+           // System.out.println(e.getMessage());
+            return -10;
+        }
     }
 
     private int actualTime(Station start, Station end)
     {
         DistanceTimeJson time = new DistanceTimeJson("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo", start.getStationCode(), end.getStationCode());
         JSONObject obj = new JSONObject(time.getJSON());
-        try {
+        try
+        {
             JSONArray item = obj.getJSONArray("StationToStationInfos");
             JSONObject rail = item.getJSONObject(0);
             return rail.getInt("RailTime");
         }
         catch(org.json.JSONException e)
         {
-            System.out.println("this is the one that failed");
+         //   System.out.println(e.getMessage());
             return -10;
         }
     }

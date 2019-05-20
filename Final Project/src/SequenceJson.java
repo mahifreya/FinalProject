@@ -1,3 +1,4 @@
+// // This sample uses the Apache HTTP client from HTTP Components (http://hc.apache.org/httpcomponents-client-ga/)
 import java.net.URI;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -7,20 +8,20 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-public class DistanceTimeJson
+public class SequenceJson
 {
     private String json = "";
 
-    public DistanceTimeJson(String url, String startCode, String endCode)
+    public SequenceJson(String url, String fromCode, String toCode)
     {
         HttpClient httpclient = HttpClients.createDefault();
 
         try
         {
-            URIBuilder builder = new URIBuilder("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo");
+            URIBuilder builder = new URIBuilder(url);
 
-            builder.setParameter("FromStationCode", startCode);
-            builder.setParameter("ToStationCode", endCode);
+            builder.setParameter("FromStationCode", fromCode);
+            builder.setParameter("ToStationCode", toCode);
 
             URI uri = builder.build();
             HttpGet request = new HttpGet(uri);
@@ -28,7 +29,7 @@ public class DistanceTimeJson
 
 
             // Request body
-            /*StringEntity reqEntity = new StringEntity("{body}");
+           /* StringEntity reqEntity = new StringEntity("{body}");
             request.setEntity(reqEntity);
 */
             HttpResponse response = httpclient.execute(request);
@@ -36,7 +37,8 @@ public class DistanceTimeJson
 
             if (entity != null)
             {
-                json =  EntityUtils.toString(entity);
+                //System.out.println(EntityUtils.toString(entity));
+                json = EntityUtils.toString(entity);
             }
         }
         catch (Exception e)
@@ -50,3 +52,4 @@ public class DistanceTimeJson
         return json;
     }
 }
+
