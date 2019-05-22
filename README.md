@@ -12,6 +12,6 @@ After the GUI program pops up, please maximize the screen for the best viewing e
 
 There are drop down menus for both the starting and ending station. Please select any stations from these menus and then hit the `search` button on the bottom left of the screen.
 
-This will cause the **A*** algorithm to run which may take a while. When the algorithm is done running, the path and the instructions for the user will be displayed on the screen.
+This will cause the **A* algorithm** to run which may take a while. When the algorithm is done running, the path and the instructions for the user will be displayed on the screen.
 
 Thank you and enjoy testing out our services!!
