@@ -1,7 +1,7 @@
 # FinalProject
 This project is intended to assist a user in choosing the best sequence of metro lines and stations in order to get from their start station to final destination as quickly as possible.
 
-#Final Project Instructions
+# Final Project Instructions
 In the file there should be two folders containing `.jar` files, the folder called `lib` and the folder called `json-20180813`. These folders must be added as `external libraries` to the project before compiling and running it. 
 
 Once the folders have been added as external libraries, the program should compile and run normally.
