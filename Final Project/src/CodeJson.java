@@ -1,3 +1,4 @@
+// // This sample uses the Apache HTTP client from HTTP Components (http://hc.apache.org/httpcomponents-client-ga/)
 import java.net.URI;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -7,21 +8,18 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-//this class is used to get the json that gives the station list element for a given line code
-public class JsonReader
+public class CodeJson
 {
     private String json = "";
-    private Timer timer = new Timer(0.1);
 
-    public JsonReader(String url, String code)
+    public CodeJson(String url)
     {
         HttpClient httpclient = HttpClients.createDefault();
-        timer.waitFor();
+
         try
         {
             URIBuilder builder = new URIBuilder(url);
 
-            builder.setParameter("LineCode", code);
 
             URI uri = builder.build();
             HttpGet request = new HttpGet(uri);
@@ -29,7 +27,7 @@ public class JsonReader
 
 
             // Request body
-           /* StringEntity reqEntity = new StringEntity("{body}");
+          /*  StringEntity reqEntity = new StringEntity("{body}");
             request.setEntity(reqEntity);
 */
             HttpResponse response = httpclient.execute(request);
@@ -37,7 +35,8 @@ public class JsonReader
 
             if (entity != null)
             {
-                json =  EntityUtils.toString(entity);
+               // System.out.println(EntityUtils.toString(entity));
+                json = EntityUtils.toString(entity);
             }
         }
         catch (Exception e)

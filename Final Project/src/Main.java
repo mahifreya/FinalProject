@@ -6,7 +6,7 @@ public class Main
 {
     public static void main(String [] args)
     {
-        metroGraph m = new metroGraph();
+        MetroGraph m = new MetroGraph();
 
         JFrame frame = new JFrame("Metro routes");
         frame.setSize(1500,1500);

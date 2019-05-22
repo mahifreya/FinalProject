@@ -7,71 +7,64 @@ import java.util.List;
 import org.json.*;
 
 
-public class metroGraph extends JPanel
+public class MetroGraph extends JPanel
 {
     private List<Station> vertices = new ArrayList<Station>();
     private String start;
     private String end;
     private final String[] colors = {"RD","YL", "GR", "BL", "OR", "SV"};
     private JLabel path;
-  //  private JTextField f;
-    private JComboBox<String> fromRep;
- //   private JTextField t;
-    private JComboBox<String> toRep;
+    private JComboBox<String> f;
+    private JComboBox<String> t;
     private JButton search;
     //I moved all the Jbuttons and labels that my IDE said "could be converted to local variables" to the constructor
 
-    public metroGraph()
+    public MetroGraph()
     {
         //initializes the graph with all the data on the stations from wmata API
         fillGraph();
-
-        //creates the GUI aspects of this project
-        setLayout(new BorderLayout());
-
-        ImageIcon pic1 = new ImageIcon("metromap.jpg");
-        JLabel pic = new JLabel(pic1);
-        add(pic, BorderLayout.CENTER);
-
-        JLabel title = new JLabel("Metro Map");
-        title.setFont(new Font("Times New Roman", Font.BOLD, 50));
-        add(title, BorderLayout.NORTH);
-        title.setHorizontalAlignment(SwingConstants.CENTER);
-
-        JPanel west = new JPanel();
-        west.setLayout(new FlowLayout());
-        JLabel from = new JLabel("Start: ");
-        from.setFont(new Font("Times New Roman", Font.BOLD, 24));
-     //   f = new JTextField(10);
-
         String [] verticesNames = new String [vertices.size()];
         int index = 0;
         for(Station s: vertices)
             verticesNames[index++] = s.getName();
 
-        fromRep = new JComboBox<String>(verticesNames);
-        fromRep.setMaximumSize(new Dimension(30, 30));
-        fromRep.setFont(new Font("Times New Roman", Font.BOLD, 24));
-      //  f.setFont(new Font("Times New Roman", Font.BOLD, 24));
-        west.add(from);
-       // west.add(f);
-        west.add(fromRep);
-        add(west, BorderLayout.WEST);
+        //creates the GUI aspects of this project
+        setLayout(new BorderLayout());
 
-        JPanel east = new JPanel();
-        east.setLayout(new FlowLayout());
+        JPanel north = new JPanel();
+
+        JPanel innerWest = new JPanel();
+        innerWest.setLayout(new FlowLayout());
+        JLabel from = new JLabel("Start: ");
+        from.setFont(new Font("Times New Roman", Font.BOLD, 24));
+        f = new JComboBox<String>(verticesNames);
+        f.setMaximumSize(new Dimension(30, 30));
+        f.setFont(new Font("Times New Roman", Font.BOLD, 24));
+        innerWest.add(from);
+        innerWest.add(f);
+        north.add(innerWest, BorderLayout.WEST);
+
+        JLabel title = new JLabel("Metro Map");
+        title.setFont(new Font("Times New Roman", Font.BOLD, 50));
+        north.add(title, BorderLayout.CENTER);
+        title.setHorizontalAlignment(SwingConstants.CENTER);
+
+        JPanel innerEast = new JPanel();
+        innerEast.setLayout(new FlowLayout());
         JLabel to = new JLabel("End: ");
         to.setFont(new Font("Times New Roman", Font.BOLD, 24));
-      //  t = new JTextField(10);
+        t = new JComboBox<String>(verticesNames);
+        t.setMaximumSize(new Dimension(30, 30));
+        t.setFont(new Font("Times New Roman", Font.BOLD, 24));
+        innerEast.add(to);
+        innerEast.add(t);
+        north.add(innerEast, BorderLayout.EAST);
 
-        toRep = new JComboBox<String>(verticesNames);
-        toRep.setMaximumSize(new Dimension(30, 30));
-        toRep.setFont(new Font("Times New Roman", Font.BOLD, 24));
-      //  t.setFont(new Font("Times New Roman", Font.BOLD, 24));
-        east.add(to);
-       // east.add(t);
-        east.add(toRep);
-        add(east, BorderLayout.EAST);
+        add(north, BorderLayout.NORTH);
+
+        ImageIcon pic1 = new ImageIcon("metromap.jpg");
+        JLabel pic = new JLabel(pic1);
+        add(pic, BorderLayout.CENTER);
 
         JPanel south = new JPanel();
         south.setLayout(new BorderLayout());
@@ -103,7 +96,7 @@ public class metroGraph extends JPanel
             read = new JsonReader("https://api.wmata.com/Rail.svc/json/jStations", colors[i]);
             JSONObject obj = new JSONObject(read.getJSON());
             JSONArray stations = obj.getJSONArray("Stations");
-
+          //  System.out.println(stations);
             //looping through each station of a given line
             while (j < stations.length())
             {
@@ -133,9 +126,22 @@ public class metroGraph extends JPanel
             j = 0;
 
             //gets the list that contains both the starting and ending code on the current line
-            ArrayList<String> codes = getStartAndEndCode(0, stations, sequence);
+
+            CodeJson codes = new CodeJson("https://api.wmata.com/Rail.svc/json/jLines");
+            JSONObject object = new JSONObject(codes.getJSON());
+            JSONArray lines = object.getJSONArray("Lines");
+            String startCode = "", endCode = "";
+            for(int temp = 0; temp < lines.length(); temp++)
+            {
+                if(lines.getJSONObject(temp).getString("LineCode").equals(colors[i]))
+                {
+                    startCode = lines.getJSONObject(temp).getString("StartStationCode");
+                    endCode = lines.getJSONObject(temp).getString("EndStationCode");
+                }
+            }
+
             //makes a SequenceJson object using the confirmed starting and ending station codes
-            sequence = new SequenceJson("https://api.wmata.com/Rail.svc/json/jPath", codes.get(0), codes.get(1));
+            sequence = new SequenceJson("https://api.wmata.com/Rail.svc/json/jPath", startCode, endCode);
             JSONObject order = new JSONObject(sequence.getJSON());
             JSONArray finalPath = order.getJSONArray("Path");
 
@@ -174,47 +180,6 @@ public class metroGraph extends JPanel
             }
             l++;
         }
-    }
-
-    private ArrayList<String> getStartAndEndCode(int k,JSONArray stations, SequenceJson sequence)
-    {
-        //local variable length
-        int length = 0;
-        String startCode = "";
-        String endCode = "";
-
-        //loops over all the stations in a current line
-        while(k < stations.length()-1)
-        {
-            //comparing each Station to the next Station in the list of stations
-            //currently, the list of stations is not "in order" so they are not sequential
-            JSONObject item = stations.getJSONObject(k);
-            JSONObject compare = stations.getJSONObject(k+1);
-
-            //creates a new SequenceJson object for each pair
-            sequence = new SequenceJson("https://api.wmata.com/Rail.svc/json/jPath",item.getString("Code"), compare.getString("Code"));
-
-            JSONObject pathHelp = new JSONObject(sequence.getJSON());
-            JSONArray path = pathHelp.getJSONArray("Path");
-
-            //checking if the number of stations in the path for this pair is greater than the current max number of stations in a path
-            //we want to get the max number because that means we have the two stations that are farthest apart
-            //this means they are the start and end stations
-            if (path.length() > length )
-            {
-                length = path.length();
-                startCode = item.getString("Code");
-                endCode = compare.getString("Code");
-            }
-            k++;
-        }
-
-        //makes an arraylist that contains both the start station code and end station code
-        //these codes are for the "start" and "end" station on THE SAME LINE
-        ArrayList<String> codes = new ArrayList<>();
-        codes.add(startCode);
-        codes.add(endCode);
-        return codes;
     }
 
     //checks if the list of stations contains the station with the given name
@@ -274,7 +239,8 @@ public class metroGraph extends JPanel
             {
                 visited.add(current);
                 //if the endNode is reached
-                if (current.equals(endNode)) return reconstructPath(startNode, endNode, parentMap);
+                if (current.getName().equals(endNode.getName()))
+                    return reconstructPath(startNode, endNode, parentMap);
 
                 Set<Station> neighbors = current.getNeighbors().keySet();
                 for (Station neighbor : neighbors)
@@ -285,8 +251,10 @@ public class metroGraph extends JPanel
                         //calculate predicted time to the end node
                         //using a predicted time is what makes A* different from Dijkstra's algorithm
                         double predictedTime = predictTime(neighbor, endNode);
+                        System.out.println(predictedTime);
                         //calculate time to neighbor
                         double neighborTime = current.getNeighbors().get(neighbor);
+
                         //calculate the time to the startNode
                         double totalTime = current.getTimeToStart() + neighborTime + predictedTime;
 
@@ -307,7 +275,8 @@ public class metroGraph extends JPanel
                 }
             }
         }
-        return null;
+        throw new RuntimeException(("Cannot find path!"));
+        //return null;
     }
 
     private Map<Station, Double> initializeAllToInfinity()
@@ -379,16 +348,13 @@ public class metroGraph extends JPanel
             //the path search button was clicked
             if (e.getSource() == search)
             {
-                //makes sure that both the start and end station are valid
-               // if(f.getText().equals("") || t.getText().equals("") || getStation(f.getText()) == null || getStation(t.getText()) == null)
-                if(fromRep.getSelectedItem().equals("") ||toRep.getSelectedItem().equals(""))
+                //makes sure that both the start and end station have been selected
+                if(f.getSelectedItem().equals("") ||t.getSelectedItem().equals(""))
                     path.setText("Invalid station entered. Please check the start and end stations.");
                 else
                 {
-                  //  start = f.getText();
-                    start = (String)fromRep.getSelectedItem();
-                   // end = t.getText();
-                    end = (String)toRep.getSelectedItem();
+                    start = (String)f.getSelectedItem();
+                    end = (String)t.getSelectedItem();
                     String p = "";
                     List<String> list = path();
                     if(list!= null)

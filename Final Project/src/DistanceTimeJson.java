@@ -10,11 +10,12 @@ import org.apache.http.util.EntityUtils;
 public class DistanceTimeJson
 {
     private String json = "";
+    private Timer timer = new Timer(0.1);
 
     public DistanceTimeJson(String url, String startCode, String endCode)
     {
         HttpClient httpclient = HttpClients.createDefault();
-
+        timer.waitFor();
         try
         {
             URIBuilder builder = new URIBuilder("https://api.wmata.com/Rail.svc/json/jSrcStationToDstStationInfo");
