@@ -96,7 +96,7 @@ public class MetroGraph extends JPanel
             read = new JsonReader("https://api.wmata.com/Rail.svc/json/jStations", colors[i]);
             JSONObject obj = new JSONObject(read.getJSON());
             JSONArray stations = obj.getJSONArray("Stations");
-          //  System.out.println(stations);
+
             //looping through each station of a given line
             while (j < stations.length())
             {
@@ -125,12 +125,12 @@ public class MetroGraph extends JPanel
             }
             j = 0;
 
-            //gets the list that contains both the starting and ending code on the current line
-
             CodeJson codes = new CodeJson("https://api.wmata.com/Rail.svc/json/jLines");
             JSONObject object = new JSONObject(codes.getJSON());
             JSONArray lines = object.getJSONArray("Lines");
             String startCode = "", endCode = "";
+
+            //gets the starting and ending code on the current line
             for(int temp = 0; temp < lines.length(); temp++)
             {
                 if(lines.getJSONObject(temp).getString("LineCode").equals(colors[i]))
@@ -146,16 +146,17 @@ public class MetroGraph extends JPanel
             JSONArray finalPath = order.getJSONArray("Path");
 
             //calls the method to set the neighbors of each station thats in vertices
-            setNeighbors(0, finalPath);
+            setNeighbors(finalPath);
 
             i++;
         }
 
     }
 
-    private void setNeighbors(int l, JSONArray finalPath)
+    private void setNeighbors(JSONArray finalPath)
     {
         //sets the neighbors of each station in the list
+        int l = 0;
         while(l < finalPath.length())
         {
             Station current =  getStation(finalPath.getJSONObject(l).getString("StationName"));
@@ -368,12 +369,11 @@ public class MetroGraph extends JPanel
                         path.setText("No path available");
                 }
             }
+            
             //the reset button was clicked
             else
             {
-              //  f.setText("");
                 path.setText("Path: ");
-               // t.setText("");
             }
         }
     }
