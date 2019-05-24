@@ -1,5 +1,4 @@
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
@@ -35,6 +34,7 @@ public class MetroGraph extends JPanel
             verticesNames[index++] = s.getName();
 
         // creates the GUI aspect of this project
+        setLayout(new FlowLayout());
         p1 = new JPanel();
         GroupLayout layout = new GroupLayout(p1);
         layout.setAutoCreateGaps(true);
@@ -408,7 +408,7 @@ public class MetroGraph extends JPanel
                         if (i%5 == 0)
                             p += '\n';
                     }
-                    path.setText(p);
+                    path.setText(convertToMultiline(p));
                 }
                 else
                     path.setText("No path available");
@@ -421,5 +421,10 @@ public class MetroGraph extends JPanel
                 p1.setVisible(true);
             }
         }
+    }
+
+    private String convertToMultiline(String s)
+    {
+        return "<html>" + s.replaceAll("\n", "<br>");
     }
 }
