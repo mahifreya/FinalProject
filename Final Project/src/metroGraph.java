@@ -341,8 +341,6 @@ public class MetroGraph extends JPanel
         printStations();
         Station startNode = getStation(start);
         Station endNode = getStation(end);
-
-        //local variables for A*
         HashMap<Station,Station> parentMap = new HashMap<Station, Station>();
         HashSet<Station> visited = new HashSet<Station>();
         Map<Station, Double> distances = initializeAllToInfinity();
@@ -381,10 +379,10 @@ public class MetroGraph extends JPanel
                         //calculate the time to the startNode
                         double totalTime = current.getTimeToStart() + neighborTime + predictedTime;
 
-                        // check if time smaller
+                        //check if time smaller
                         if(totalTime < distances.get(neighbor) )
                         {
-                            // update neighbor's time
+                            //update neighbor's time
                             distances.put(neighbor, totalTime);
                             //used for PriorityQueue, to compare the stations
                             neighbor.setTimeToStart(totalTime);
@@ -398,8 +396,8 @@ public class MetroGraph extends JPanel
                 }
             }
         }
+        //this should never occur for the metro
         throw new RuntimeException(("Cannot find path!"));
-        //return null;
     }
 
     private Map<Station, Double> initializeAllToInfinity()
@@ -464,6 +462,22 @@ public class MetroGraph extends JPanel
         }
     }
 
+    private String getColorName(String lineCode)
+    {
+        if(lineCode.equals("RD"))
+            return "red";
+        else if(lineCode.equals("BL"))
+            return "blue";
+        else if(lineCode.equals("OR"))
+            return "orange";
+        else if(lineCode.equals("YL"))
+            return "yellow";
+        else if(lineCode.equals("GR"))
+            return "green";
+        else
+            return "silver";
+    }
+
     private class Listener implements ActionListener
     {
         public void actionPerformed(ActionEvent e)
@@ -508,11 +522,20 @@ public class MetroGraph extends JPanel
                     start = (String)f.getSelectedItem();
                     end = (String)t.getSelectedItem();
                     String p = "";
+                    String currentColor = getColorName(getStation(start).getColors().get(0));
                     List<String> list = path();
                     if(list!= null)
                     {
-                        for (int i = 0; i < list.size(); i++) {
-                            p += list.get(i) + " ";
+                        p = "Start at " + start + " which is on the " + currentColor + " line ";
+                        for (int i = 1; i < list.size(); i++)
+                        {
+                            if (getStation(list.get(i)).getColors().contains(currentColor))
+                                p += list.get(i) + " ";
+                            else
+                            {
+                                currentColor = getColorName(getStation(list.get(i)).getColors().get(0));
+                                p += "\nSwitch to the " + currentColor + " line and use " + list.get(i) + " ";
+                            }
                         }
                         path.setText(p);
                     }
@@ -522,7 +545,7 @@ public class MetroGraph extends JPanel
 
                 }
             }
-            
+
             //the reset button was clicked
             else
             {
@@ -532,5 +555,3 @@ public class MetroGraph extends JPanel
         }
     }
 }
-
-
