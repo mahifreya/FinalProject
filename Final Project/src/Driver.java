@@ -2,7 +2,7 @@ import javax.swing.*;
 
 import static java.awt.Component.CENTER_ALIGNMENT;
 
-public class Main
+public class Driver
 {
     public static void main(String [] args)
     {
