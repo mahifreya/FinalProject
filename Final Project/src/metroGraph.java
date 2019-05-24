@@ -1,6 +1,8 @@
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
+import java.security.acl.Group;
 import java.util.*;
 import java.util.List;
 
@@ -13,10 +15,15 @@ public class MetroGraph extends JPanel
     private String start;
     private String end;
     private final String[] colors = {"RD","YL", "GR", "BL", "OR", "SV"};
+    private JPanel p1;
+    private JPanel p2;
     private JLabel path;
+    private JLabel from;
+    private JLabel to;
     private JComboBox<String> f;
     private JComboBox<String> t;
     private JButton search;
+    private JButton reset;
     //I moved all the Jbuttons and labels that my IDE said "could be converted to local variables" to the constructor
 
     public MetroGraph()
@@ -28,59 +35,174 @@ public class MetroGraph extends JPanel
         for(Station s: vertices)
             verticesNames[index++] = s.getName();
 
-        //creates the GUI aspects of this project
-        setLayout(new BorderLayout());
+        /*// creates the GUI aspect of this project
+        JPanel panel = new JPanel();
+        p1 = new JPanel();
+        p2 = new JPanel();
+        GroupLayout g = new GroupLayout(panel);
+        g.setAutoCreateGaps(true);
+        g.setAutoCreateContainerGaps(true);
+        GroupLayout g1 = new GroupLayout(p1);
+        //g1.setAutoCreateGaps(true);
+        //g1.setAutoCreateContainerGaps(true);
+        GroupLayout g2 = new GroupLayout(p2);
+        //g2.setAutoCreateGaps(true);
+        //g2.setAutoCreateContainerGaps(true);
+        panel.setLayout(g);
+        p1.setLayout(g1);
+        p2.setLayout(g2);
 
-        JPanel north = new JPanel();
-
-        JPanel innerWest = new JPanel();
-        innerWest.setLayout(new FlowLayout());
-        JLabel from = new JLabel("Start: ");
-        from.setFont(new Font("Times New Roman", Font.BOLD, 24));
-        f = new JComboBox<String>(verticesNames);
-        f.setMaximumSize(new Dimension(30, 30));
-        f.setFont(new Font("Times New Roman", Font.BOLD, 24));
-        innerWest.add(from);
-        innerWest.add(f);
-        north.add(innerWest, BorderLayout.WEST);
-
+        // initializes all the GUI components
         JLabel title = new JLabel("Metro Map");
         title.setFont(new Font("Times New Roman", Font.BOLD, 50));
-        north.add(title, BorderLayout.CENTER);
-        title.setHorizontalAlignment(SwingConstants.CENTER);
-
-        JPanel innerEast = new JPanel();
-        innerEast.setLayout(new FlowLayout());
+        ImageIcon pic1 = new ImageIcon("metromap");
+        JLabel pic = new JLabel(pic1);
+        Font f1 = new Font("Times New Roman", Font.BOLD, 24);
+        JLabel from = new JLabel("Start: ");
+        from.setFont(f1);
+        f = new JComboBox<String>(verticesNames);
+        f.setMaximumSize(new Dimension(30, 30));
+        f.setFont(f1);
         JLabel to = new JLabel("End: ");
-        to.setFont(new Font("Times New Roman", Font.BOLD, 24));
+        to.setFont(f1);
         t = new JComboBox<String>(verticesNames);
         t.setMaximumSize(new Dimension(30, 30));
-        t.setFont(new Font("Times New Roman", Font.BOLD, 24));
-        innerEast.add(to);
-        innerEast.add(t);
-        north.add(innerEast, BorderLayout.EAST);
-
-        add(north, BorderLayout.NORTH);
-
-        ImageIcon pic1 = new ImageIcon("metromap.jpg");
-        JLabel pic = new JLabel(pic1);
-        add(pic, BorderLayout.CENTER);
-
-        JPanel south = new JPanel();
-        south.setLayout(new BorderLayout());
+        t.setFont(f1);
         search = new JButton("Search");
-        search.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        search.setFont(f1);
         search.addActionListener(new Listener());
-        JButton reset = new JButton("Reset");
-        reset.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        path = new JLabel("");
+        path.setFont(f1);
+        reset = new JButton("Reset");
+        reset.setFont(f1);
         reset.addActionListener(new Listener());
-        path = new JLabel("Path: ");
-        path.setFont(new Font("Times New Roman", Font.BOLD, 20));
-        south.add(search, BorderLayout.WEST);
-        south.add(reset, BorderLayout.EAST);
-        south.add(path, BorderLayout.CENTER);
-        path.setHorizontalAlignment(SwingConstants.CENTER);
-        add(south, BorderLayout.SOUTH);
+
+        // creates the first inner panel
+        g1.setHorizontalGroup(g1.createSequentialGroup()
+            .addGroup(g1.createParallelGroup(GroupLayout.Alignment.CENTER)
+                .addComponent(from)
+                .addComponent(to))
+            .addGroup(g1.createParallelGroup(GroupLayout.Alignment.CENTER)
+                .addComponent(f)
+                .addComponent(t))
+            .addGroup(g1.createParallelGroup(GroupLayout.Alignment.CENTER)));
+        g1.setVerticalGroup(g1.createSequentialGroup()
+            .addGroup(g1.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                .addComponent(from)
+                .addComponent(f))
+            .addGroup(g1.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                .addComponent(to)
+                .addComponent(t))
+            .addComponent(search));
+
+        // creates second inner panel
+        g2.setHorizontalGroup(g1.createSequentialGroup()
+            .addGroup(g2.createParallelGroup(GroupLayout.Alignment.CENTER)
+                .addComponent(path)
+                .addComponent(reset)));
+        g2.setVerticalGroup(g1.createSequentialGroup()
+            .addComponent(path)
+            .addComponent(reset));
+
+        // creates overall panel
+        g.setHorizontalGroup(g.createSequentialGroup()
+            .addGroup(g.createParallelGroup(GroupLayout.Alignment.CENTER)
+                .addComponent(title)
+                .addComponent(pic)
+                .addComponent(p1)
+                .addComponent(p2)));
+        g.setVerticalGroup(g.createSequentialGroup()
+            .addComponent(title)
+            .addComponent(pic)
+            .addComponent(p1)
+            .addComponent(p2));
+
+        // sets up start screen
+        p2.setVisible(false);
+        add(panel);
+        */
+        // creates the GUI aspect of this project
+        p1 = new JPanel();
+        GroupLayout layout = new GroupLayout(p1);
+        layout.setAutoCreateGaps(true);
+        layout.setAutoCreateContainerGaps(true);
+        p1.setLayout(layout);
+        p2 = new JPanel();
+        GroupLayout layout1 = new GroupLayout(p2);
+        layout1.setAutoCreateGaps(true);
+        layout1.setAutoCreateContainerGaps(true);
+        p2.setLayout(layout1);
+
+        // initializes all the GUI components
+        JLabel title = new JLabel("Metro Map");
+        title.setFont(new Font("Times New Roman", Font.BOLD, 50));
+        JLabel title1 = new JLabel("Metro Map");
+        title1.setFont(new Font("Times New Roman", Font.BOLD, 50));
+        ImageIcon p = new ImageIcon("metromap.jpg");
+        JLabel pic = new JLabel(p);
+        JLabel pic1 = new JLabel(p);
+        Font f1 = new Font("Times New Roman", Font.BOLD, 24);
+        from = new JLabel("Start: ");
+        from.setFont(f1);
+        f = new JComboBox<String>(verticesNames);
+        f.setMaximumSize(new Dimension(30, 30));
+        f.setFont(f1);
+        to  = new JLabel("End: ");
+        to.setFont(f1);
+        t = new JComboBox<String>(verticesNames);
+        t.setMaximumSize(new Dimension(30, 30));
+        t.setFont(f1);
+        search = new JButton("Search");
+        search.setFont(f1);
+        search.addActionListener(new Listener());
+        path = new JLabel("");
+        path.setFont(f1);
+        //path.setMaximumSize(new Dimension(1500, 100));
+        reset = new JButton("Reset");
+        reset.setFont(f1);
+        reset.addActionListener(new Listener());
+
+        // adds components to the first panel
+        layout.setHorizontalGroup(layout.createSequentialGroup()
+            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                .addComponent(title)
+                .addComponent(pic)
+                .addGroup(layout.createSequentialGroup()
+                    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                        .addComponent(from)
+                        .addComponent(to))
+                    .addGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
+                        .addComponent(f)
+                        .addComponent(t)))
+                .addComponent(search)));
+        layout.setVerticalGroup(layout.createSequentialGroup()
+            .addComponent(title)
+            .addComponent(pic)
+            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                .addComponent(from)
+                .addComponent(f))
+            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                .addComponent(to)
+                .addComponent(t))
+            .addComponent(search));
+
+        // adds components to the second panel
+        layout1.setHorizontalGroup(layout1.createSequentialGroup()
+            .addGroup(layout1.createParallelGroup(GroupLayout.Alignment.CENTER)
+                .addComponent(title1)
+                .addComponent(pic1)
+                .addComponent(path)
+                .addComponent(reset)));
+        layout1.setVerticalGroup(layout1.createSequentialGroup()
+            .addComponent(title1)
+            .addComponent(pic1)
+            .addComponent(path)
+            .addComponent(reset));
+
+        // adds the first panel to the frame
+        add(p1);
+        add(p2);
+        p2.setVisible(false);
 
     }
 
@@ -346,9 +468,38 @@ public class MetroGraph extends JPanel
     {
         public void actionPerformed(ActionEvent e)
         {
-            //the path search button was clicked
             if (e.getSource() == search)
             {
+                start = (String) f.getSelectedItem();
+                end = (String) t.getSelectedItem();
+                String p = "";
+                List<String> list = path();
+                if (list != null)
+                {
+
+                    for (int i = 0; i < list.size(); i++)
+                    {
+                        p += list.get(i) + " ";
+                        if (i%5 == 0)
+                            p += '\n';
+                    }
+                    path.setText(p);
+                }
+                else
+                    path.setText("No path available");
+                p1.setVisible(false);
+                p2.setVisible(true);
+            }
+            else
+            {
+                p2.setVisible(false);
+                p1.setVisible(true);
+            }
+
+            /*//the path search button was clicked
+            if (e.getSource() == search)
+            {
+                ///*
                 //makes sure that both the start and end station have been selected
                 if(f.getSelectedItem().equals("") ||t.getSelectedItem().equals(""))
                     path.setText("Invalid station entered. Please check the start and end stations.");
@@ -367,6 +518,8 @@ public class MetroGraph extends JPanel
                     }
                     else
                         path.setText("No path available");
+
+
                 }
             }
             
@@ -375,6 +528,7 @@ public class MetroGraph extends JPanel
             {
                 path.setText("Path: ");
             }
+            */
         }
     }
 }
